@@ -5,6 +5,11 @@ scala_toolchain(
     name = "plus_one_toolchain_impl",
     dependency_mode = "plus-one",
     dependency_tracking_method = "ast",
+    # Scalafix semantic rules (see //scalafix) need SemanticDB. Scala 3 has it built into
+    # the compiler. Bundling it into the output jar means the jar of every target carries
+    # its own SemanticDB (META-INF/semanticdb/...) without any additional actions or targets.
+    enable_semanticdb = True,
+    semanticdb_bundle_in_jar = True,
 )
 
 # This check is here to fail early if the configured Scala version is out of sync with the 'plus_one_toolchain' target_settings.

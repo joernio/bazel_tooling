@@ -10,3 +10,55 @@ scala_config = use_extension(
     "scala_config",
 )
 use_repo(scala_config, "rules_scala_config")
+
+# Scalafix (see //scalafix). Two separate maven universes are needed:
+#  - scalafix_cli_maven: everything needed to *run* the Scalafix CLI (includes the Scala 2.13 library).
+#  - scalafix_rules_maven: only what is needed to *compile* Scalafix rules with the Scala 3 toolchain.
+#    The Scala library must not be part of it, rules_scala provides the right one.
+bazel_dep(name = "rules_jvm_external", version = "7.0")
+
+SCALAFIX_VERSION = "0.14.7"
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    name = "scalafix_cli_maven",
+    artifacts = [
+        "ch.epfl.scala:scalafix-cli_2.13.18:{}".format(SCALAFIX_VERSION),
+    ],
+    lock_file = "//:scalafix_cli_maven_install.json",
+    repositories = ["https://repo1.maven.org/maven2"],
+)
+maven.install(
+    name = "scalafix_rules_maven",
+    artifacts = [
+        "ch.epfl.scala:scalafix-core_2.13:{}".format(SCALAFIX_VERSION),
+        # The testkit is published per full Scala version. Only the Scala 3 version current at the scalafix
+        # release date exists (0.14.7 ships 3.3.8 and 3.8.4), so an exact match with our Scala version is generally
+        # unavailable. A patch mismatch is harmless: patches within a Scala 3 minor are binary/TASTy compatible.
+        # TODO: Revisit on a new Scala 3 minor.
+        "ch.epfl.scala:scalafix-testkit_3.8.4:{}".format(SCALAFIX_VERSION),
+    ],
+    excluded_artifacts = [
+        "org.scala-lang:scala3-library_3",
+        "org.scala-lang:scala-library",
+        # The testkit is based on ScalaTest. Tests get it from rules_scala (scala_test) instead.
+        "org.scalatest:scalatest_3",
+        "org.scalatest:scalatest-core_3",
+        "org.scalatest:scalatest-diagrams_3",
+        "org.scalatest:scalatest-featurespec_3",
+        "org.scalatest:scalatest-flatspec_3",
+        "org.scalatest:scalatest-freespec_3",
+        "org.scalatest:scalatest-funspec_3",
+        "org.scalatest:scalatest-funsuite_3",
+        "org.scalatest:scalatest-matchers-core_3",
+        "org.scalatest:scalatest-mustmatchers_3",
+        "org.scalatest:scalatest-propspec_3",
+        "org.scalatest:scalatest-refspec_3",
+        "org.scalatest:scalatest-shouldmatchers_3",
+        "org.scalatest:scalatest-wordspec_3",
+        "org.scalactic:scalactic_3",
+    ],
+    lock_file = "//:scalafix_rules_maven_install.json",
+    repositories = ["https://repo1.maven.org/maven2"],
+)
+use_repo(maven, "scalafix_cli_maven", "scalafix_rules_maven")
