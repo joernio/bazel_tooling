@@ -106,6 +106,11 @@ while IFS= read -r manifest; do
   for rule in "${RULES[@]}"; do
     ARGS+=(--rules "$rule")
   done
+  if ((ALL == 0 && ${#ONLY_FILES[@]} == 0)); then
+    # Restricts the reported diagnostics to the changed lines, like the sbt invocation.
+    # Without this all violations in the touched files are reported.
+    ARGS+=(--diff-base "$DIFF_BASE")
+  fi
   if [[ "$CHECK" == "1" ]]; then
     ARGS+=(--check)
   fi
