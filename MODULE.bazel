@@ -17,7 +17,7 @@ use_repo(scala_config, "rules_scala_config")
 #    The Scala library must not be part of it, rules_scala provides the right one.
 bazel_dep(name = "rules_jvm_external", version = "7.0")
 
-SCALAFIX_VERSION = "0.14.7"
+SCALAFIX_VERSION = "0.14.9"
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
@@ -33,7 +33,7 @@ maven.install(
     artifacts = [
         "ch.epfl.scala:scalafix-core_2.13:{}".format(SCALAFIX_VERSION),
         # The testkit is published per full Scala version. Only the Scala 3 version current at the scalafix
-        # release date exists (0.14.7 ships 3.3.8 and 3.8.4), so an exact match with our Scala version is generally
+        # release date exists (0.14.9 ships 3.3.8 and 3.8.4), so an exact match with our Scala version is generally
         # unavailable. A patch mismatch is harmless: patches within a Scala 3 minor are binary/TASTy compatible.
         # TODO: Revisit on a new Scala 3 minor.
         "ch.epfl.scala:scalafix-testkit_3.8.4:{}".format(SCALAFIX_VERSION),
