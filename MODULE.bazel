@@ -2,7 +2,7 @@ module(name = "bazel_tooling")
 
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "platforms", version = "1.1.0")
-bazel_dep(name = "rules_scala", version = "7.2.5")
+bazel_dep(name = "rules_scala", version = "7.3.0")
 bazel_dep(name = "rules_java", version = "9.6.1")
 
 scala_config = use_extension(
@@ -32,13 +32,19 @@ maven.install(
     name = "scalafix_rules_maven",
     artifacts = [
         "ch.epfl.scala:scalafix-core_2.13:{}".format(SCALAFIX_VERSION),
-        # The testkit is published per full Scala version. Only the Scala 3 version current at the scalafix
-        # release date exists (0.14.9 ships 3.3.8 and 3.8.4), so an exact match with our Scala version is generally
-        # unavailable. A patch mismatch is harmless: patches within a Scala 3 minor are binary/TASTy compatible.
+        # The testkit is published per full Scala version. Only the Scala 3 versions current at the scalafix
+        # release date exist (0.14.9 ships 3.3.8, 3.8.4 and 3.9.0), so an exact match with our Scala version is
+        # not guaranteed. A patch mismatch is harmless: patches within a Scala 3 minor are binary/TASTy compatible.
         # TODO: Revisit on a new Scala 3 minor.
-        "ch.epfl.scala:scalafix-testkit_3.8.4:{}".format(SCALAFIX_VERSION),
+        "ch.epfl.scala:scalafix-testkit_3.9.0:{}".format(SCALAFIX_VERSION),
+        # org.lz4:lz4-java is only a Maven relocation POM pointing to at.yawk.lz4:lz4-java. rules_jvm_external keeps the
+        # old coordinate in the dependency graph of scala3-presentation-compiler but only generates a target for the
+        # new one, which breaks analysis. So we exclude the relocated coordinate and depend on the new one directly.
+        # TODO: Remove once rules_jvm_external handles relocations (or the Scala presentation compiler is updated).
+        "at.yawk.lz4:lz4-java:1.8.1",
     ],
     excluded_artifacts = [
+        "org.lz4:lz4-java",
         "org.scala-lang:scala3-library_3",
         "org.scala-lang:scala-library",
         # The testkit is based on ScalaTest. Tests get it from rules_scala (scala_test) instead.

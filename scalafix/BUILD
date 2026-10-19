@@ -28,7 +28,8 @@ java_library(
     name = "scalafix_testkit",
     exports = [
         ":scalafix_core",
-        "@scalafix_rules_maven//:ch_epfl_scala_scalafix_testkit_3_8_4",
+        "@scalafix_rules_maven//:at_yawk_lz4_lz4_java",
+        "@scalafix_rules_maven//:ch_epfl_scala_scalafix_testkit_3_9_0",
         "@scalafix_rules_maven//:org_scalameta_io_2_13",
     ],
 )

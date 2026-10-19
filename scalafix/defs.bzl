@@ -25,7 +25,7 @@ How it works:
 load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 
 # Must be kept in sync with the Scala version in //scala_toolchain (see check_version.bzl there).
-SCALA_VERSION = "3.8.3"
+SCALA_VERSION = "3.9.0"
 
 MANIFEST_OUTPUT_GROUP = "scalafix_manifest"
 
